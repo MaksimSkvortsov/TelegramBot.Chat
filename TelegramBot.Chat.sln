@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6F240C5A-3169-4C83-96A2-3FA657B15B73}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot.Chat.Output", "src\TelegramBot.Chat.Output\TelegramBot.Chat.Output.csproj", "{FA0467C5-A490-4A95-AA9E-615D26CDCBBB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA0467C5-A490-4A95-AA9E-615D26CDCBBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA0467C5-A490-4A95-AA9E-615D26CDCBBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA0467C5-A490-4A95-AA9E-615D26CDCBBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA0467C5-A490-4A95-AA9E-615D26CDCBBB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FA0467C5-A490-4A95-AA9E-615D26CDCBBB} = {6F240C5A-3169-4C83-96A2-3FA657B15B73}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7A19892F-AC37-436D-82AA-926E3A5BB611}
+	EndGlobalSection
+EndGlobal
