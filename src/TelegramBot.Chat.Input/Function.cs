@@ -6,6 +6,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using TelegramBot.Chat.Input.TelegramModels;
 
 namespace TelegramBot.Chat.Input
 {
@@ -25,17 +26,25 @@ namespace TelegramBot.Chat.Input
             }
             log.LogInformation($"Telegram POST request received.");
 
-            string name = req.Query["name"];
-
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            var data = JsonConvert.DeserializeObject<TelegramUpdate>(requestBody);
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            var queueMessage = CreateQueueMessage(data.Message);
 
-            return new OkObjectResult(responseMessage);
+            return new OkObjectResult(queueMessage);
+        }
+
+        private static UpdateMessage CreateQueueMessage(Message telegramMessage)
+        {
+            var chat = telegramMessage.Chat;
+
+            return new UpdateMessage
+            {
+                UserId = chat.Id,
+                FirstName = chat.FirstName,
+                LastName = chat.LastName,
+                Message = telegramMessage.Text
+            };
         }
     }
 }
