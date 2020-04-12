@@ -13,10 +13,17 @@ namespace TelegramBot.Chat.Input
     {
         [FunctionName("func-receiveTelegramMessage")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Update/{token}")] HttpRequest req,
+            string token,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            //Better replace with API gateway validation
+            if (token != Settings.TelegramToken)
+            {
+                log.LogError($"Telegram POST request received with invalid token. Token = {token}.");
+                return new UnauthorizedResult();
+            }
+            log.LogInformation($"Telegram POST request received.");
 
             string name = req.Query["name"];
 
