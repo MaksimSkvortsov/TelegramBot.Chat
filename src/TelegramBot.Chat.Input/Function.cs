@@ -14,36 +14,47 @@ namespace TelegramBot.Chat.Input
     {
         [FunctionName("func-receiveTelegramMessage")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Update/{token}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Update/{token}")] HttpRequest request,
             string token,
             ILogger log)
         {
             //Better replace with API gateway validation
             if (token != Settings.TelegramToken)
             {
-                log.LogError($"Telegram POST request received with invalid token. Token = {token}.");
+                log.LogError($"Telegram update received with invalid token. Token = {token}.");
                 return new UnauthorizedResult();
             }
-            log.LogInformation($"Telegram POST request received.");
+            log.LogInformation($"Telegram update received.");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var data = JsonConvert.DeserializeObject<TelegramUpdate>(requestBody);
+            var telegramMessage = await GetRequestMessage(request);
+            var queueMessage = CreateQueueMessage(telegramMessage.Message);
 
-            var queueMessage = CreateQueueMessage(data.Message);
+            var queueClient = new TelegramQueueClient(Settings.ServiceBusConnectionString, Settings.InputQueueName);
+            await queueClient.SendAsync(queueMessage);
 
-            return new OkObjectResult(queueMessage);
+            return new AcceptedResult();
+        }
+
+
+        private static async Task<TelegramUpdate> GetRequestMessage(HttpRequest req)
+        {
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            return JsonConvert.DeserializeObject<TelegramUpdate>(requestBody);
         }
 
         private static UpdateMessage CreateQueueMessage(Message telegramMessage)
         {
-            var chat = telegramMessage.Chat;
+            var sender = telegramMessage.From;
 
             return new UpdateMessage
             {
-                UserId = chat.Id,
-                FirstName = chat.FirstName,
-                LastName = chat.LastName,
-                Message = telegramMessage.Text
+                ChatId = telegramMessage.Chat.Id,
+                UserId = sender.Id,
+                FirstName = sender.FirstName,
+                LastName = sender.LastName,
+                Message = telegramMessage.Text,
+                LanguageCode = sender.LanguageCode,
+                IsBot = sender.IsBot
             };
         }
     }
