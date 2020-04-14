@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TelegramBot.Chat.Input.TelegramModels
+﻿namespace TelegramBot.Chat.Input.TelegramModels
 {
     internal class Message
     {
         public Chat Chat { get; set; }
+
+        public Sender From { get; set; }
 
         public string Text { get; set; }
 
