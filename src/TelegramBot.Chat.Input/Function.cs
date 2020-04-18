@@ -24,11 +24,11 @@ namespace TelegramBot.Chat.Input
                 log.LogError($"Telegram update received with invalid token. Token = {token}.");
                 return new UnauthorizedResult();
             }
-            log.LogInformation($"Telegram update received.");
 
             var telegramMessage = await GetRequestMessage(request);
             var queueMessage = CreateQueueMessage(telegramMessage.Message);
-
+            log.LogInformation($"Telegram update received from chat {queueMessage.ChatId}.");
+            
             var queueClient = new TelegramQueueClient(Settings.ServiceBusConnectionString, Settings.InputQueueName);
             await queueClient.SendAsync(queueMessage);
 
