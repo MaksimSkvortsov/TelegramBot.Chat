@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using TelegramBot.Chat.Contract;
 using TelegramBot.Chat.Output.Telegram;
 
 namespace TelegramBot.Chat.Output
@@ -9,22 +9,18 @@ namespace TelegramBot.Chat.Output
     public static class Function
     {
         [FunctionName("func-sendTelegramMessage")]
-        public static async Task Run([ServiceBusTrigger("sbq-telegram-chat-output", Connection = "ServiceBusConnection")]string queueItem, ILogger log)
+        public static async Task Run([ServiceBusTrigger("sbq-telegram-chat-output", Connection = "ServiceBusConnection")]ReplyQueueMessage queueItem, ILogger log)
         {
-            log.LogInformation($"C# ServiceBus queue trigger function processed message: {queueItem}");
-
-            var queueItemModel = JsonConvert.DeserializeObject<QueueItem>(queueItem);
-
             var telegramClient = new TelegramClient(Settings.TelegramApiKey);
-            var response = await telegramClient.SendMessageAsync(queueItemModel.ChatId, queueItemModel.Message);
+            var response = await telegramClient.SendMessageAsync(queueItem.ChatId, queueItem.Message);
 
             if (response.IsSuccessful)
             {
-                log.LogInformation($"Telegram message delivery was requested. Message: {queueItem}.");
+                log.LogInformation($"Telegram message delivery was requested. Chat ID: {queueItem.ChatId}.");
             }
             else
             {
-                log.LogError($"Telegram message delivery request failed. Response status: {response.StatusCode}. Error: {response.Error}.");
+                log.LogError($"Telegram message delivery request failed. Chat ID: {queueItem.ChatId}, response status: {response.StatusCode}, error: {response.Error}.");
             }
         }
     }
