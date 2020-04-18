@@ -1,16 +1,25 @@
-using System;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using TelegramBot.Chat.Contract;
 
 namespace TelegramBot.Chat.DemoBot
 {
     public static class Function
     {
         [FunctionName("func-demoBot")]
-        public static void Run([ServiceBusTrigger("myqueue", Connection = "con")]string myQueueItem, ILogger log)
+        public static async Task Run([ServiceBusTrigger("sbq-telegram-chat-input", Connection = "ServiceBusConnection")]UpdateQueueMessage queueMessage, ILogger log)
         {
-            log.LogInformation($"C# ServiceBus queue trigger function processed message: {myQueueItem}");
+            var replyMessage = new ReplyQueueMessage
+            {
+                ChatId = queueMessage.ChatId,
+                Message = queueMessage.Message
+            };
+
+            var telegramClient = new TelegramQueueClient(Settings.ServiceBusConnectionString, Settings.OutputQueueName);
+            await telegramClient.SendAsync(replyMessage);
+
+            log.LogDebug($"Demo bot processed message from chat: {queueMessage.ChatId}");
         }
     }
 }
